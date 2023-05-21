@@ -11,6 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
+use Drewlabs\Cors\ConfigurationBuilder;
 use Drewlabs\Cors\Cors;
 use Drewlabs\Cors\CorsInterface;
 use function Drewlabs\Cors\Proxy\Cors;
@@ -142,6 +143,28 @@ class CorsTest extends TestCase
         $response = $service->handleNormalRequest($request, new \Nyholm\Psr7\Response());
         $headers = $response->getHeader('Access-Control-Allow-Origin');
         $this->assertSame('*', array_pop($headers));
+    }
+
+    public function test_handle_request_using_config_builder()
+    {
+        $service = new Cors(
+            ConfigurationBuilder::new()
+                ->withHosts('http://localhost')
+                ->withCredentials()
+                ->withMaxAge(0)
+                ->withMethods('POST')
+                ->toArray()
+        );
+        $request = $this->createPsr7Request();
+        $request = $request->withHeader('Origin', 'http://localhost');
+        /**
+         * @var \Nyholm\Psr7\Response
+         */
+        $response = $service->handlePreflightRequest($request, new \Nyholm\Psr7\Response());
+        $headers = $response->getHeader('Access-Control-Allow-Origin');
+        $this->assertSame('http://localhost', array_pop($headers));
+        $result = $response->getHeader('Access-Control-Allow-Methods');
+        $this->assertEquals(implode(", ", ['POST']), array_pop($result));
     }
 
     private function createPsr7Request()

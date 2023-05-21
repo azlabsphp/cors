@@ -19,12 +19,26 @@ use Psr\Http\Message\ResponseInterface;
 
 final class Cors implements CorsInterface
 {
+    // #region Class constants
     /**
-     * List of allowed hosts.
-     *
-     * @var array<string>
+     * @var string[]
      */
-    private $allowed_hosts = ['*'];
+    const ALLOWED_DEFAULT_HEADERS = [
+        'X-Requested-With',
+        'Content-Type',
+        'Accept',
+        'Origin',
+        'Authorization',
+        'Application',
+        'Cache-Control'
+    ];
+
+    /**
+     * @var string[]
+     */
+    const ALLOWED_DEFAULT_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
+    // #endregion Class constants
+
 
     /**
      * Access control max age header value.
@@ -34,81 +48,29 @@ final class Cors implements CorsInterface
     private $max_age = 0;
 
     /**
-     * @var string[]
-     */
-    private $allowed_methods = [
-        'GET',
-        'POST',
-        'PUT',
-        'DELETE',
-        'OPTIONS',
-    ];
-
-    private $allowed_headers = [
-        'X-Requested-With',
-        'Content-Type',
-        'Accept',
-        'Origin',
-        'Authorization',
-        'Application',
-        'Cache-Control',
-    ];
-
-    /**
-     * @var true
+     * @var bool
      */
     private $allowed_credentials = true;
 
     /**
-     * @var array
+     * @var array<string>
+     */
+    private $allowed_hosts = [];
+
+    /**
+     * @var string[]
+     */
+    private $allowed_methods = [];
+
+    /**
+     * @var string[]
+     */
+    private $allowed_headers = [];
+
+    /**
+     * @var array<string,mixed>
      */
     private $exposed_headers = [];
-    /**
-     * Current request Request-Headers entries.
-     *
-     * @var string
-     */
-    private $accessControlRequestHeadersHeader = 'Access-Control-Request-Headers';
-    /**
-     * Current request Request-Methods entries.
-     *
-     * @var string
-     */
-    private $accessControlRequestMethodHeader = 'Access-Control-Request-Method';
-    /**
-     * Max age of the request headers.
-     *
-     * @var string
-     */
-    private $accessControlMaxAgeHeader = 'Access-Control-Max-Age';
-    /**
-     * Entry for the Allowed methods to be set on the request.
-     *
-     * @var string
-     */
-    private $accessControlAllowedMethodHeader = 'Access-Control-Allow-Methods';
-    /**
-     * @var string
-     */
-    private $accessControlAllowedCredentialsHeader = 'Access-Control-Allow-Credentials';
-    /**
-     * Entry for the Allowed header to be set on the request.
-     *
-     * @var string
-     */
-    private $accessControlAllowedHeadersHeader = 'Access-Control-Allow-Headers';
-    /**
-     * Entry for the exposed headers to be set on the request.
-     *
-     * @var string
-     */
-    private $accessControlExposedHeadersHeader = 'Access-Control-Expose-Headers';
-    /**
-     * Entry for the allowed origins to be set on the request.
-     *
-     * @var string
-     */
-    private $accessControlAllowedOriginHeader = 'Access-Control-Allow-Origin';
 
     /**
      * List of dynamic properties of the current object.
@@ -117,6 +79,7 @@ final class Cors implements CorsInterface
      */
     private $properties = [
         'allowed_hosts',
+        'allowed_methods',
         'max_age',
         'allowed_headers',
         'allowed_credentials',
@@ -151,7 +114,7 @@ final class Cors implements CorsInterface
             return $this->handlePreflightRequest($request, $response);
         }
         // Do not set any headers if the origin is not allowed
-        if ($this->matches($this->allowed_hosts, $request->headers->get('Origin'))) {
+        if ($this->matches($this->allowed_hosts, $this->getHeader($request, 'Origin'))) {
             return $this->handleNormalRequest($request, $response);
         }
 
@@ -166,19 +129,19 @@ final class Cors implements CorsInterface
             $response = $this->setAllowOriginHeaders($request, $response);
             // Set headers max age
             if ($this->max_age) {
-                $response = $this->setHeader($response, $this->accessControlMaxAgeHeader, (string) $this->max_age);
+                $response = $this->setHeader($response, 'Access-Control-Max-Age', (string) $this->max_age);
             }
             // Set the allowed method headers
             $response = $this->setHeaders(
                 $response,
                 [
-                    $this->accessControlAllowedCredentialsHeader => $this->allowed_credentials ? 'true' : 'false',
-                    $this->accessControlAllowedMethodHeader => \in_array('*', $this->allowed_methods, true)
-                        ? strtoupper($request->headers->get($this->accessControlRequestMethodHeader))
-                        : implode(', ', $this->allowed_methods),
-                    $this->accessControlAllowedHeadersHeader => \in_array('*', $this->allowed_headers, true)
-                        ? strtolower($request->headers->get($this->accessControlRequestHeadersHeader))
-                        : implode(', ', $this->allowed_headers),
+                    'Access-Control-Allow-Credentials' => $this->allowed_credentials ? 'true' : 'false',
+                    'Access-Control-Allow-Methods' => \in_array('*', $this->allowed_methods, true)
+                        ? strtoupper($this->getHeader($request, 'Access-Control-Request-Method', implode(",", self::ALLOWED_DEFAULT_METHODS)))
+                        : implode(',', $this->allowed_methods),
+                    'Access-Control-Allow-Headers' => \in_array('*', $this->allowed_headers, true)
+                        ? strtolower($this->getHeader($request, 'Access-Control-Request-Headers', implode(",", self::ALLOWED_DEFAULT_HEADERS)))
+                        : implode(',', $this->allowed_headers),
                 ]
             );
         }
@@ -191,13 +154,13 @@ final class Cors implements CorsInterface
         $response = $this->setAllowOriginHeaders($request, $response);
         // Set Vary unless all origins are allowed
         if (!\in_array('*', $this->allowed_hosts, true)) {
-            $vary = $this->hasHeader($request, 'Vary') ? $this->getHeader($request, 'Vary').', Origin' : 'Origin';
+            $vary = $this->hasHeader($request, 'Vary') ? $this->getHeader($request, 'Vary') . ', Origin' : 'Origin';
             $response = $this->setHeader($response, 'Vary', $vary);
         }
-        $response = $this->setHeader($response, $this->accessControlAllowedCredentialsHeader, $this->allowed_credentials ? 'true' : 'false');
+        $response = $this->setHeader($response, 'Access-Control-Allow-Credentials', $this->allowed_credentials ? 'true' : 'false');
 
         if (!empty($this->exposed_headers)) {
-            $response = $this->setHeader($response, $this->accessControlExposedHeadersHeader, implode(', ', $this->exposed_headers));
+            $response = $this->setHeader($response, 'Access-Control-Expose-Headers', implode(',', $this->exposed_headers));
         }
 
         return $response;
@@ -207,18 +170,15 @@ final class Cors implements CorsInterface
     {
         foreach ($this->properties as $key) {
             if (\array_key_exists($key, $config) && null !== ($config[$key] ?? null)) {
-                if (\is_array($first = $this->{$key}) && \is_array($second = $config[$key])) {
-                    $configs_ = array_unique(array_merge($first ?? [], $second ?? []));
-                } else {
-                    $configs_ = $config[$key];
-                }
+                $prop = $this->{$key};
+                $current = is_string($item = $config[$key]) && is_array($prop) ? array_unique(array_merge($prop, [$item])) : $item;
                 // **Note*
                 // By default if the allowed_hosts entry is empty we use ['*'] to allow
                 // request from any origin
                 if ('allowed_hosts' === $key) {
-                    $configs_ = \is_string($configs_) ? [$configs_] : (empty($configs_) ? ['*'] : $configs_);
+                    $current = \is_string($current) ? [$current] : (empty($current) ? ['*'] : $current);
                 }
-                $this->{$key} = $configs_;
+                $this->{$key} = $current;
             }
         }
     }
@@ -233,9 +193,9 @@ final class Cors implements CorsInterface
     {
         $origin = $this->getHeader($request, 'Origin');
         if (\in_array('*', $this->allowed_hosts, true)) {
-            $response = $this->setHeader($response, $this->accessControlAllowedOriginHeader, empty($origin) ? '*' : $origin);
+            $response = $this->setHeader($response, 'Access-Control-Allow-Origin', empty($origin) ? '*' : $origin);
         } elseif ($this->matches($this->allowed_hosts, $origin)) {
-            $response = $this->setHeader($response, $this->accessControlAllowedOriginHeader, $origin);
+            $response = $this->setHeader($response, 'Access-Control-Allow-Origin', $origin);
         }
 
         return $response;
@@ -257,7 +217,7 @@ final class Cors implements CorsInterface
         // pattern such as "library/*", making any string check convenient.
         $pattern = str_replace('\*', '.*', $pattern);
 
-        return '#^'.$pattern.'\z#u';
+        return '#^' . $pattern . '\z#u';
     }
 
     private function matches($pattern, $value)
