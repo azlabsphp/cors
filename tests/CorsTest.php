@@ -164,7 +164,7 @@ class CorsTest extends TestCase
         $headers = $response->getHeader('Access-Control-Allow-Origin');
         $this->assertSame('http://localhost', array_pop($headers));
         $result = $response->getHeader('Access-Control-Allow-Methods');
-        $this->assertEquals(implode(", ", ['POST']), array_pop($result));
+        $this->assertEquals(implode(",", ['POST']), array_pop($result));
     }
 
     private function createPsr7Request()
