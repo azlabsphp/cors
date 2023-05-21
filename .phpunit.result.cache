@@ -1,0 +1,1 @@
+{"version":1,"defects":[],"times":{"CorsTest::test_constructor":0.006,"CorsTest::test_is_prelift_request":0.006,"CorsTest::test_is_cors_request":0,"CorsTest::test_is_cors_request_return_false":0,"CorsTest::test_handle_preflight_request":0.001,"CorsTest::test_handle_preflight_request_for_origin":0.001,"CorsTest::test_normal_request":0,"CorsTest::test_cors_proxy_function":0}}
