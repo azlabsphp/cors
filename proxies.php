@@ -16,7 +16,7 @@ namespace Drewlabs\Cors\Proxy;
 use Drewlabs\Cors\Cors as CorsRequest;
 
 /**
- * Create a cors request instance from provided configurations.
+ * creates a cors request instance from provided configurations.
  *
  * @return CorsRequest
  */

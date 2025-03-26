@@ -19,21 +19,21 @@ use Psr\Http\Message\ResponseInterface;
 interface CorsInterface
 {
     /**
-     * Returns whether or not the request is a CORS request.
+     * returns whether or not the request is a CORS request.
      *
      * @return bool
      */
     public function isCorsRequest(RequestInterface $request);
 
     /**
-     * Returns whether or not the request is a preflight request.
+     * returns whether or not the request is a preflight request.
      *
      * @return bool
      */
     public function isPreflightRequest(RequestInterface $request);
 
     /**
-     * Handles the actual request.
+     * handles the actual request.
      *
      * @param ResponseInterface|mixed $response
      *

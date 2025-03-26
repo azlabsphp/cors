@@ -15,9 +15,7 @@ namespace Drewlabs\Cors;
 
 class ConfigurationBuilder
 {
-    /**
-     * @var array<string,mixed>
-     */
+    /** @var array<string,mixed> */
     private $array = [
         'allowed_hosts' => ['*'],
         'allowed_headers' => ['*'],
@@ -29,7 +27,7 @@ class ConfigurationBuilder
 
 
     /**
-     * Creates new class instance
+     * configuration builder factory constructor
      * 
      * @return ConfigurationBuilder 
      */
@@ -39,7 +37,7 @@ class ConfigurationBuilder
     }
 
     /**
-     * Add `allowed_hosts` to the configuration builder
+     * add `allowed_hosts` to the configuration builder
      * 
      * @param mixed $hosts 
      * @return $this 
@@ -51,7 +49,7 @@ class ConfigurationBuilder
     }
 
     /**
-     * Add `allowed_headers` to the configuration builder
+     * add `allowed_headers` to the configuration builder
      * 
      * @param string[] ...$headers
      * 
@@ -64,7 +62,7 @@ class ConfigurationBuilder
     }
 
     /**
-     * Add `allowed_methods` to the configuration builder
+     * add `allowed_methods` to the configuration builder
      * 
      * @param string[] ...$headers
      * 
@@ -77,7 +75,7 @@ class ConfigurationBuilder
     }
 
     /**
-     * Add `allowed_credentials` attribute to the configuration builder
+     * add `allowed_credentials` attribute to the configuration builder
      * 
      * @return self 
      */
@@ -88,7 +86,7 @@ class ConfigurationBuilder
     }
 
     /**
-     * Add `exposed_headers` to the configuration builder
+     * add `exposed_headers` to the configuration builder
      * 
      * @param string[] ...$headers
      * 
@@ -101,7 +99,7 @@ class ConfigurationBuilder
     }
 
     /**
-     * Add `max_age` value to the cors configuration builder
+     * add `max_age` value to the cors configuration builder
      * 
      * @param int $age 
      * 
@@ -114,7 +112,7 @@ class ConfigurationBuilder
     }
 
     /**
-     * Returns the array representation of the configuration
+     * returns the array representation of the configuration
      * 
      * @return array<string, mixed> 
      */

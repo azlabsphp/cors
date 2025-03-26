@@ -19,10 +19,7 @@ use Psr\Http\Message\ResponseInterface;
 
 final class Cors implements CorsInterface
 {
-    // #region Class constants
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     const ALLOWED_DEFAULT_HEADERS = [
         'X-Requested-With',
         'Content-Type',
@@ -33,11 +30,8 @@ final class Cors implements CorsInterface
         'Cache-Control'
     ];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     const ALLOWED_DEFAULT_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
-    // #endregion Class constants
 
 
     /**
@@ -91,7 +85,7 @@ final class Cors implements CorsInterface
      *
      * @return void
      */
-    public function __construct(array $config = null)
+    public function __construct(?array $config = null)
     {
         $this->forceFill($config ?? []);
     }
@@ -202,7 +196,7 @@ final class Cors implements CorsInterface
     }
 
     /**
-     * Create a pattern for a wildcard, based on $this->matches() from Laravel.
+     * creates a pattern for a wildcard, based on $this->matches() from Laravel.
      *
      * @param string $pattern
      *
@@ -242,9 +236,8 @@ final class Cors implements CorsInterface
         return false;
     }
 
-    // #region Miscellanous mehods
     /**
-     * Return the HTTP Message header value or $default if the header is not present.
+     * returns the HTTP Message header value or $default if the header is not present.
      *
      * @param mixed $default
      *
@@ -258,7 +251,7 @@ final class Cors implements CorsInterface
     }
 
     /**
-     * Checks if the request has a given header.
+     * checks if the request has a given header.
      *
      * @return bool
      */
@@ -268,7 +261,7 @@ final class Cors implements CorsInterface
     }
 
     /**
-     * Checks if the request method equals a given method.
+     * checks if the request method equals a given method.
      *
      * @return bool
      */
@@ -278,7 +271,7 @@ final class Cors implements CorsInterface
     }
 
     /**
-     * Set HTTP message header value.
+     * set HTTP message header value.
      *
      * @param mixed $value
      *
@@ -292,7 +285,7 @@ final class Cors implements CorsInterface
     }
 
     /**
-     * Set a list of header into the http message.
+     * set a list of header into the http message.
      *
      * @throws \InvalidArgumentException
      *
@@ -306,5 +299,4 @@ final class Cors implements CorsInterface
 
         return $message;
     }
-    // #endregion Miscellanous mehods
 }
