@@ -22,10 +22,14 @@
             "email": "asmyns.platonnas29@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
         "php": "^7.1|^8.0",
         "psr/http-message": "^1.0|^2.0"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
     }
 }
